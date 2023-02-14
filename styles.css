@@ -11,3 +11,12 @@ body {
 svg {
 	border: 1px solid black;
 }
+
+.bar {
+	background-color: red;
+}
+
+.bar:hover {
+	display: none;
+
+}
