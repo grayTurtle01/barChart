@@ -64,4 +64,7 @@ function renderChart(){
 				.attr('width', 8)
 				.attr('height', d => h-yScale(d[1]) - padding)
 				.attr('class', 'bar')
+
+				.attr('data-date', d => d[0])
+				.attr('data-gdp', d => d[1])
 }
