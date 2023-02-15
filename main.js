@@ -1,16 +1,87 @@
-url = 'https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/GDP-data.json'
-
-fetch(url)
-	.then( res => res.json() )
-	.then( data => {
-			dataset = data.data
-			renderChart()
-	 })
-
+/*** Auxiliars ***/
+sample =  [
+    [
+      "1947-01-01",
+      243.1
+    ],
+    [
+      "1947-04-01",
+      246.3
+    ],
+    [
+      "1947-07-01",
+      250.1
+    ],
+    [
+      "1947-10-01",
+      260.3
+    ],
+    [
+      "1948-01-01",
+      266.2
+    ],
+    [
+      "1948-04-01",
+      272.9
+    ],
+    [
+      "1948-07-01",
+      279.5
+    ],
+    [
+      "1948-10-01",
+      280.7
+    ]
+   ]
 
 function getYear(yymmdd){
 	return yymmdd.split('-')[0]
 }
+
+function getQuarter(date){
+	let month = date.split('-')[1]
+
+	let quarter = ''
+	if( month == '01')
+		quarter = 'Q1'
+	else if( month == '04')
+		quarter ='Q2'
+	else if( month == '07')
+		quarter = 'Q3'
+	else if( month == '10')
+		quarter  = 'Q4'
+	
+	return quarter
+}
+
+function getFormatedYears( points ){
+	
+	years = points.map( point => {
+			let date = point[0]
+			
+			let year = date.split('-')[0]
+			let quarter = getQuarter(date)
+
+			return year + '-' + quarter
+	})
+	return years
+}
+
+//~ getQuarter('1999-10-31')
+//~ getFormatedYears(sample)
+
+// Main 
+function main(){
+	url = 'https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/GDP-data.json'
+
+	fetch(url)
+		.then( res => res.json() )
+		.then( data => {
+				dataset = data.data
+				renderChart()
+		 })
+}
+
 
 function renderChart(){
 	w = 700
@@ -53,7 +124,7 @@ function renderChart(){
 		 .call(yAxis)	
 
 
-	// Plot
+	// Bars
 	svg.selectAll('rect')
 		 .data(dataset)
 		 .enter()
