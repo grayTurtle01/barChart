@@ -39,59 +39,91 @@ function getYear(yymmdd){
 }
 
 function getQuarter(date){
-	let month = date.split('-')[1]
+    let month = date.split('-')[1]
 
-	let quarter = ''
-	if( month == '01')
-		quarter = 'Q1'
-	else if( month == '04')
-		quarter ='Q2'
-	else if( month == '07')
-		quarter = 'Q3'
-	else if( month == '10')
-		quarter  = 'Q4'
-	
-	return quarter
+    let quarter = ''
+    if( month == '01')
+	quarter = 'Q1'
+    else if( month == '04')
+	quarter ='Q2'
+    else if( month == '07')
+	quarter = 'Q3'
+    else if( month == '10')
+	quarter  = 'Q4'
+    
+    return quarter
 }
+
+function getYearAndQuarter(date){
+  let year = getYear(date)
+  let quarter = getQuarter(date)
+
+  return year + '-' + quarter
+}
+
+function getYearAndFraction(date){
+  let year = getYear(date)
+  let quarter = getQuarter(date)
+
+  fraction = 0
+  if( quarter == 'Q1')
+    fraction = 0
+
+  if( quarter == 'Q2')
+    fraction = 25
+
+  if( quarter == 'Q3')
+    fraction = 50
+
+  if( quarter == 'Q3')
+    fraction = 75
+
+
+  return Number(year  + '.' + fraction) 
+}
+
+
 
 function getFormatedYears( points ){
 	
-	years = points.map( point => {
-			let date = point[0]
-			
-			let year = date.split('-')[0]
-			let quarter = getQuarter(date)
-
-			return year + '-' + quarter
-	})
-	return years
+  years = points.map( point => {
+	let date = point[0]
+	
+	return getYearAndQuarter(date)
+  })
+  return years
 }
 
 //~ getQuarter('1999-10-31')
-//~ getFormatedYears(sample)
+//~ console.log(getYearAndQuarter('1999-01-15'))
+//~ console.log(getFormatedYears(sample))
+//~ console.log( getYearAndFraction('1998-04-16'))
 
 // Main 
 function main(){
-	url = 'https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/GDP-data.json'
+  url = 'https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/GDP-data.json'
 
-	fetch(url)
-		.then( res => res.json() )
-		.then( data => {
-				dataset = data.data
-				renderChart()
-		 })
+  fetch(url)
+    .then( res => res.json() )
+    .then( data => {
+	dataset = data.data
+	renderChart()
+	setEvents()
+      })
 }
-
 
 function renderChart(){
 	w = 700
 	h = 500
 	padding = 50
+	
+	numberOfBars = (65 * 4)
+	barWidth = (w-padding*2)/(numberOfBars)
 
 	svg = d3.select('body')
-					.append('svg')
-					.attr('width', w)
-					.attr('height', h)  
+		.append('svg')
+		.attr('width', w)
+		.attr('height', h)  
 
 
 	firstDate = dataset[0][0]
@@ -100,12 +132,12 @@ function renderChart(){
 	
 	// Scale
 	xScale = d3.scaleLinear()
-						 .domain([getYear(firstDate), getYear(lastDate)])
-						 .range([padding, w-padding])
+		   .domain([getYear(firstDate), getYear(lastDate)])
+		   .range([padding, w-padding])
 
 	yScale = d3.scaleLinear()
-						 .domain([0, 18000])
-						 .range([h-padding, padding])
+		   .domain([0, 18000])
+		   .range([h-padding, padding])
 
 
 	// Axis
@@ -126,16 +158,45 @@ function renderChart(){
 
 	// Bars
 	svg.selectAll('rect')
-		 .data(dataset)
-		 .enter()
+		.data(dataset)
+		.enter()
 
-				.append('rect')
-				.attr('x', (d,i) => xScale( getYear(d[0]) ))
-				.attr('y',  d => yScale(d[1]))
-				.attr('width', 8)
-				.attr('height', d => h-yScale(d[1]) - padding)
-				.attr('class', 'bar')
+		.append('rect')
+		.attr('x', (d,i) => xScale( getYearAndFraction(d[0]) ))
+		.attr('y',  d => yScale(d[1]))
+		.attr('width', barWidth)
+		.attr('height', d => h-yScale(d[1]) - padding)
+		.attr('class', 'bar')
 
-				.attr('data-date', d => d[0])
-				.attr('data-gdp', d => d[1])
+		.attr('data-date', d => getYearAndQuarter(d[0]) )
+		.attr('data-gdp', d => d[1])
 }
+
+function setEvents(){
+  bars = document.querySelectorAll(".bar")
+
+  bars.forEach( bar => {
+    
+    bar.addEventListener('click', function(e){
+      x = e.clientX
+      y = e.clientY
+      
+      tooltip.style.top = y;
+      tooltip.style.left = x;
+      tooltip.style.background = 'steelblue';
+      tooltip.style.opacity = 1;
+
+      date.innerText = this.dataset.date
+      gdp.innerText = this.dataset.gdp
+
+    })
+
+    bar.addEventListener('mouseEnter', function(){
+      console.log('worked')
+    })
+    
+  })
+  
+}
+
+main()
