@@ -34,6 +34,42 @@ sample =  [
     ]
    ]
 
+sample2 =  [
+    [
+      "1947-01-01",
+      243.1
+    ],
+    [
+      "1947-04-01",
+      500.3
+    ],
+    [
+      "1947-07-01",
+      1000.1
+    ],
+    [
+      "1947-10-01",
+      2000.3
+    ],
+    [
+      "1948-01-01",
+      2500.2
+    ],
+    [
+      "1948-04-01",
+      272.9
+    ],
+    [
+      "1948-07-01",
+      279.5
+    ],
+    [
+      "1948-10-01",
+      280.7
+    ]
+   ]
+
+
 function getYear(yymmdd){
 	return yymmdd.split('-')[0]
 }
@@ -75,13 +111,12 @@ function getYearAndFraction(date){
   if( quarter == 'Q3')
     fraction = 50
 
-  if( quarter == 'Q3')
+  if( quarter == 'Q4')
     fraction = 75
 
 
   return Number(year  + '.' + fraction) 
 }
-
 
 
 function getFormatedYears( points ){
@@ -106,33 +141,35 @@ function main(){
   fetch(url)
     .then( res => res.json() )
     .then( data => {
-	dataset = data.data
-	renderChart()
+	let dataset = data.data
+	renderChart(dataset)
 	setEvents()
       })
 }
 
-function renderChart(){
-	w = 700
-	h = 500
+function renderChart(dataset){
+	w = 900
+	h = 600
 	padding = 50
 	
-	numberOfBars = (65 * 4)
-	barWidth = (w-padding*2)/(numberOfBars)
+	numberOfBars = (dataset.length)
+	barWidth = (w - padding*2)  / (numberOfBars)
 
 	svg = d3.select('body')
 		.append('svg')
 		.attr('width', w)
-		.attr('height', h)  
+		.attr('height', h)
+		
 
 
 	firstDate = dataset[0][0]
 	lastDate = dataset[dataset.length - 1][0]
+	console.log(getYear(lastDate))
 	
 	
 	// Scale
 	xScale = d3.scaleLinear()
-		   .domain([getYear(firstDate), getYear(lastDate)])
+		   .domain([getYear(firstDate), Number(getYear(lastDate)) + 1])
 		   .range([padding, w-padding])
 
 	yScale = d3.scaleLinear()
@@ -166,6 +203,7 @@ function renderChart(){
 		.attr('y',  d => yScale(d[1]))
 		.attr('width', barWidth)
 		.attr('height', d => h-yScale(d[1]) - padding)
+		//~ .attr('height', 100)
 		.attr('class', 'bar')
 
 		.attr('data-date', d => getYearAndQuarter(d[0]) )
@@ -177,26 +215,39 @@ function setEvents(){
 
   bars.forEach( bar => {
     
-    bar.addEventListener('click', function(e){
-      x = e.clientX
-      y = e.clientY
-      
-      tooltip.style.top = y;
-      tooltip.style.left = x;
+
+    bar.addEventListener('mouseenter', function(e){
+      tooltip.style.top = e.clientY;
+      tooltip.style.left = e.clientX;
       tooltip.style.background = 'steelblue';
       tooltip.style.opacity = 1;
 
       date.innerText = this.dataset.date
       gdp.innerText = this.dataset.gdp
 
+      bar.setAttribute('fill', '#f00')
+      
+
     })
 
-    bar.addEventListener('mouseEnter', function(){
-      console.log('worked')
-    })
+    bar.addEventListener('mouseleave', function(){
+      tooltip.style.opacity = 0;
+      bar.setAttribute('fill', '#000')
+  })
+
     
   })
+
+
   
 }
 
 main()
+
+function main2(){
+
+  renderChart(sample2)
+  setEvents()
+}
+
+//~ main2()
