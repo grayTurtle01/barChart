@@ -151,8 +151,6 @@ function renderChart(dataset){
 	w = 900
 	h = 560
 	padding = 50
-
-	console.log(dataset[dataset.length - 1])
 	
 	numberOfBars = (dataset.length)
 	barWidth = (w - padding*2)  / (numberOfBars)
@@ -164,6 +162,13 @@ function renderChart(dataset){
 		.attr('height', h)
 		
 
+	// Labels
+	svg.append('text')
+	   .text('Gross Domestic Product')
+	   .attr('transform', 'rotate(-90)')
+	   .attr('x', -250)
+	   .attr('y', 80)
+	
 
 
 	firstDate = dataset[0][0]
