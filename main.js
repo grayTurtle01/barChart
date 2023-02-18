@@ -149,12 +149,15 @@ function main(){
 
 function renderChart(dataset){
 	w = 900
-	h = 600
+	h = 560
 	padding = 50
+
+	console.log(dataset[dataset.length - 1])
 	
 	numberOfBars = (dataset.length)
 	barWidth = (w - padding*2)  / (numberOfBars)
 
+	// SVG
 	svg = d3.select('body')
 		.append('svg')
 		.attr('width', w)
@@ -162,14 +165,16 @@ function renderChart(dataset){
 		
 
 
+
 	firstDate = dataset[0][0]
 	lastDate = dataset[dataset.length - 1][0]
-	console.log(getYear(lastDate))
-	
+
+	lastYear = getYear(lastDate)
+	firstYear = getYear(firstDate)
 	
 	// Scale
 	xScale = d3.scaleLinear()
-		   .domain([getYear(firstDate), Number(getYear(lastDate)) + 1])
+		   .domain([firstYear, lastYear])
 		   .range([padding, w-padding])
 
 	yScale = d3.scaleLinear()
@@ -221,12 +226,14 @@ function setEvents(){
       tooltip.style.left = e.clientX;
       tooltip.style.background = 'steelblue';
       tooltip.style.opacity = 1;
+      tooltip.setAttribute('data-date', bar.getAttribute('data-date') )
+  
 
       date.innerText = this.dataset.date
       gdp.innerText = this.dataset.gdp
 
       bar.setAttribute('fill', '#f00')
-      
+     	
 
     })
 
